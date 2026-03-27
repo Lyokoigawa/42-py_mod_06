@@ -1,4 +1,6 @@
 # import alchemy.grimoire as grimoire
+from typing import List
+from alchemy.elements import Element
 # import alchemy.elements as elements
 # import alchemy.potions as potions
 import time
@@ -10,6 +12,9 @@ import os
 # print("\033[2J\033[H", end="", flush=True) (clears the command prompt)
 # print("\033[F\033[2K" * n, end="", flush=True) (clears n amount of lines
 # starting from the current one)
+
+
+ElementList = list[list[str, tuple[int, int, int]]]
 
 
 class Spellbook:
@@ -29,9 +34,9 @@ class Spellbook:
 
 
 class Mage:
-    def __init__(self, name: str, focus: str):
+    def __init__(self, name: str, focus: list):
         self.name = str.casefold(name)
-        self.focus = str.casefold(focus)
+        self.focus = focus
         self.spellbook = Spellbook(self.name, self.focus)
         self.level = 0
         self.m_class = "Mage"
@@ -40,7 +45,7 @@ class Mage:
         return str.capitalize(self.name)
 
     def type(self) -> str:
-        return str.capitalize(self.focus)
+        return (self.focus[1] + str.capitalize(self.focus))
 
 
 def intro(user: Mage) -> None:
@@ -50,7 +55,7 @@ def intro(user: Mage) -> None:
     print("\nYou have been registered as a level "
           f"{user.level} {user.type()} {user.m_class}!")
     time.sleep(1.5)
-    print("\nHere in your library, you will learn how to brew potions,"
+    print("\nHere in your library, you will learn how to brew potions, "
           "as well spellcrafting.")
     time.sleep(1.5)
     print("\nEverything in this world has a magical element attached to it,"
@@ -62,40 +67,51 @@ def intro(user: Mage) -> None:
           " into the world of magic with open arms."
           "\nMay you make the best of your time here."
           "\n\n(Press [ENTER] to continue)")
-    input("")
+    input("\n")
     print("\033[?25h")
 
 
-def first_boot() -> Mage:
-    valid_foci = {"fire": "\x1b[38;2;227;59;59mfire\x1b[0m",
-                  "water": "\x1b[38;2;157;198;252mwater\x1b[0m",
-                  "earth": "\x1b[38;2;135;113;84mearth\x1b[0m",
-                  "air": "\x1b[38;2;140;222;158mair\x1b[0m"}
+def first_boot(e_list: Element) -> Mage:
+    # valid_foci = {"fire": "\x1b[38;2;227;59;59mfire\x1b[0m",
+    #               "water": "\x1b[38;2;157;198;252mwater\x1b[0m",
+    #               "earth": "\x1b[38;2;135;113;84mearth\x1b[0m",
+    #               "air": "\x1b[38;2;140;222;158mair\x1b[0m"}
+    username = ""
     valid_input = False
-    print("\033[2J\033[H", end="", flush=True)
-    username = str.casefold(input("What is your name: "))
+    os.system('clear')
+    while username == "":
+        username = str.casefold(input("What is your name: "))
+        os.system('clear')
+        if username == "":
+            print("Name cannot be empty!\n")
     print()
     while True:
         focus = str.casefold(input("What is your magical focus: "))
-        if focus in valid_foci:
-            return (Mage(username, valid_foci[focus]))
+        if focus in e_list.elements:
+            return (Mage(username, e_list.elements[focus]))
         if valid_input is False:
-            print("\033[F\033[2K", end="", flush=True)
+            os.system('clear')
             valid_input = True
         else:
-            print("\033[F\033[2K" * 2, end="", flush=True)
+            os.system('clear')
         print("That is not one of the valid basic magical foci:")
-        print(f"- {valid_foci['fire']}")
-        print(f"- {valid_foci['water']}")
-        print(f"- {valid_foci['earth']}")
-        print(f"- {valid_foci['air']}")
-        
+        e_list.list_elements()
+
 
 # def command(user: Mage) -> None:
 
 
 if __name__ == "__main__":
-    user = first_boot()
+    all_elements = Element()
+    basic_elements = Element()
+    first_elements = [["fire", (227, 59, 59)],
+                      ["water", (157, 198, 252)],
+                      ["earth", (135, 113, 84)],
+                      ["air", (140, 222, 158)],]
+    for e in first_elements:
+        all_elements.add_element(e[0], e[1])
+        basic_elements.add_element(e[0], e[1])
+    user = first_boot(basic_elements)
     print()
     intro(user)
     os.system('clear')
