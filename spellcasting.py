@@ -1,5 +1,4 @@
 # import alchemy.grimoire as grimoire
-from typing import List
 from alchemy.elements import Element
 # import alchemy.elements as elements
 # import alchemy.potions as potions
@@ -34,26 +33,44 @@ class Spellbook:
 
 
 class Mage:
-    def __init__(self, name: str, focus: list):
+    def __init__(self, name: str, focus: list) -> None:
         self.name = str.casefold(name)
         self.focus = focus
         self.spellbook = Spellbook(self.name, self.focus)
         self.level = 0
         self.m_class = "Mage"
 
+    def set_name(self, name: str) -> None:
+        self.name = str.casefold(name)
+
     def you(self) -> str:
         return str.capitalize(self.name)
 
     def type(self) -> str:
-        return (self.focus[1] + str.capitalize(self.focus))
+        return (self.focus[1] + str.capitalize(self.focus[0]) + "\x1b[0m")
 
 
-def intro(user: Mage) -> None:
+class Player:
+    def __init__(self, character: Mage, os: str) -> None:
+        self.char = character
+        self.os = os
+
+    def wipe(self) -> None:
+        if self.os == 'nt':
+            os.system('cls')
+        else:
+            os.system('clear')
+
+    def change_mage(self, character: Mage) -> None:
+        self.char = character
+
+
+def intro(user: Player) -> None:
     print("\033[?25l", end="")
-    print(f"Welcome, mage {user.you()}!")
+    print(f"Welcome, mage {user.char.you()}!")
     time.sleep(1.5)
     print("\nYou have been registered as a level "
-          f"{user.level} {user.type()} {user.m_class}!")
+          f"{user.char.level} {user.char.type()} {user.char.m_class}!")
     time.sleep(1.5)
     print("\nHere in your library, you will learn how to brew potions, "
           "as well spellcrafting.")
@@ -71,37 +88,46 @@ def intro(user: Mage) -> None:
     print("\033[?25h")
 
 
-def first_boot(e_list: Element) -> Mage:
+def first_boot(e_list: Element, user: Player) -> None:
     # valid_foci = {"fire": "\x1b[38;2;227;59;59mfire\x1b[0m",
     #               "water": "\x1b[38;2;157;198;252mwater\x1b[0m",
     #               "earth": "\x1b[38;2;135;113;84mearth\x1b[0m",
     #               "air": "\x1b[38;2;140;222;158mair\x1b[0m"}
-    username = ""
+    username = None
     valid_input = False
-    os.system('clear')
-    while username == "":
-        username = str.casefold(input("What is your name: "))
-        os.system('clear')
+    while username == "" or username is None:
+        user.wipe()
         if username == "":
             print("Name cannot be empty!\n")
+        username = str.casefold(input("What is your name: "))
     print()
     while True:
         focus = str.casefold(input("What is your magical focus: "))
         if focus in e_list.elements:
-            return (Mage(username, e_list.elements[focus]))
+            user.wipe()
+            user.change_mage(Mage(username, e_list.elements[focus]))
+            return
         if valid_input is False:
-            os.system('clear')
+            user.wipe()
             valid_input = True
         else:
-            os.system('clear')
+            user.wipe()
         print("That is not one of the valid basic magical foci:")
         e_list.list_elements()
 
 
-# def command(user: Mage) -> None:
+def empty_mage() -> Mage:
+    empty_mage = Mage("effigy", ["none", "\x1b[0m"])
+    return empty_mage
+
+
+# def main(user: Player, all_elements: Element) -> None:
+#    command = ""
+#    while True:
 
 
 if __name__ == "__main__":
+    user = Player(empty_mage(), os.name)
     all_elements = Element()
     basic_elements = Element()
     first_elements = [["fire", (227, 59, 59)],
@@ -111,10 +137,10 @@ if __name__ == "__main__":
     for e in first_elements:
         all_elements.add_element(e[0], e[1])
         basic_elements.add_element(e[0], e[1])
-    user = first_boot(basic_elements)
+    first_boot(basic_elements, user)
     print()
     intro(user)
-    os.system('clear')
+    user.wipe()
 
 
 # print("This is \x1b[38;2;142;194;21mLIME GREEN\x1b[0m text")
