@@ -39,6 +39,7 @@ class Spellbook:
 
     def add_spell(self, spell: Spell) -> None:
         self.spells.append(spell)
+        print(f"Successfully added the spell: {spell.name}")
 
     def list_spells(self) -> None:
         print(f"Your {self.type} contains {len(self.spells)} spells:")
@@ -54,7 +55,7 @@ class Spellbook:
             print(f"- [{i}] {spell.name}: {spell.components}")
             i += 1
         try:
-            to_remove = int(input("Spell to remove: "))
+            to_remove = int(input("\nSpell to remove: "))
             if to_remove > len(self.spells):
                 raise ValueError
             self.spells.remove(self.spells[to_remove - 1])
@@ -202,12 +203,30 @@ def main(user: Player, all_elements: dict[Element]) -> None:
         user.wipe()
         if command in valid_commands:
             if command == "add_element":
-                pass
+                n_ele_name = ""
+                # n_ele_colors = ""
+                print("Adding a new element...\n")
+                elements["all_elements"].list_elements
+                print("\nPlease don't try to reinvent one of the already "
+                      "existing elements... This is for both "
+                      "your and our safety!")
+                while n_ele_name == "":
+                    n_ele_name = str.casefold(input(""))
             if command == "add_spell":
-                spellname = input("What's the name of the spell "
-                                  "you'd like to create?: ")
-                spellcomp = str.split(input("What do you cast it "
-                                            "with?: "), " ")
+                spellname = ""
+                spellcomp = ""
+                while spellname == "":
+                    spellname = input("What's the name of the spell "
+                                      "you'd like to create?: ")
+                    if spellname == "":
+                        user.wipe()
+                        print("The spell must have a name!")
+                while spellcomp == "":
+                    spellcomp = str.split(input("What do you cast it "
+                                                "with?: "), " ")
+                    if spellcomp == "":
+                        user.wipe()
+                        print("The spell must have components!")
                 user.char.spellbook.add_spell(Spell(spellname,
                                                     user.char.name,
                                                     spellcomp))
@@ -247,7 +266,7 @@ def main(user: Player, all_elements: dict[Element]) -> None:
                 sys.exit(1)
         else:
             print(f"Invalid command {command}. Use 'help' if you're stuck")
-            print()
+        print()
 
 
 if __name__ == "__main__":
