@@ -21,11 +21,11 @@ ElementList = list[list[str, tuple[int, int, int]]]
 class Spellbook:
     def __init__(self, owner: str, type: str, NPC: bool) -> None:
         self.owner = owner
-        self.book_type(type)
         self.spells = []
         self.potions = []
         self.NPCmade = NPC
         self.name = type.capitalize()
+        self.type = self.book_type(type)
 
     def book_type(self, type: str) -> None:
         if type == "fire":
